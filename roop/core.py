@@ -48,7 +48,7 @@ def parse_args() -> None:
     program.add_argument('--execution-provider', help='available execution provider (choices: cpu, ...)', dest='execution_provider', default=['cpu'], choices=suggest_execution_providers(), nargs='+')
     program.add_argument('--execution-threads', help='number of execution threads', dest='execution_threads', type=int, default=suggest_execution_threads())
     program.add_argument('-v', '--version', action='version', version=f'{roop.metadata.name} {roop.metadata.version}')
-    program.add_argument('--ffps', type=int, choices=[30, 60, 120], help='Custom FPS value (30, 60, 120, etc.)')
+    program.add_argument('--custom_fps', type=int, choices=[30, 60, 120], help='Custom FPS value (30, 60, 120, etc.)')
     
     args = program.parse_args()
 
@@ -71,7 +71,7 @@ def parse_args() -> None:
     roop.globals.max_memory = args.max_memory
     roop.globals.execution_providers = decode_execution_providers(args.execution_provider)
     roop.globals.execution_threads = args.execution_threads
-    roop.globals.ffps = args.ffps
+    roop.globals.custom_fps = args.custom_fps
 
 def encode_execution_providers(execution_providers: List[str]) -> List[str]:
     return [execution_provider.replace('ExecutionProvider', '').lower() for execution_provider in execution_providers]
@@ -160,9 +160,9 @@ def start() -> None:
         update_status(f'Extracting frames with {fps} FPS...')
         extract_frames(roop.globals.target_path, fps)
     else:
-        ffps = args.ffps
-        update_status(f'Extracting frames with {ffps} FPS...')
-        extract_frames(roop.globals.target_path, ffps)
+        custom_fps = args.custom_fps
+        update_status(f'Extracting frames with {custom_fps} FPS...')
+        extract_frames(roop.globals.target_path, custom_fps)
 
     # process frame
     temp_frame_paths = get_temp_frame_paths(roop.globals.target_path)
