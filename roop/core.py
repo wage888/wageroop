@@ -48,8 +48,8 @@ def parse_args() -> None:
     program.add_argument('--execution-provider', help='available execution provider (choices: cpu, ...)', dest='execution_provider', default=['cpu'], choices=suggest_execution_providers(), nargs='+')
     program.add_argument('--execution-threads', help='number of execution threads', dest='execution_threads', type=int, default=suggest_execution_threads())
     program.add_argument('-v', '--version', action='version', version=f'{roop.metadata.name} {roop.metadata.version}')
-    program.add_argument('--default_fps', help='video slice frame number selection', dest='default_fps', default='30', choices=['30', '60', '120'])
-    
+    program.add_argument('--ffps', help='custom frames per second', dest='ffps', type=int, default=120, choices=[30, 60, 120])
+
     args = program.parse_args()
 
     roop.globals.source_path = args.source_path
@@ -71,7 +71,7 @@ def parse_args() -> None:
     roop.globals.max_memory = args.max_memory
     roop.globals.execution_providers = decode_execution_providers(args.execution_provider)
     roop.globals.execution_threads = args.execution_threads
-    roop.globals.default_fps = args.default_fps
+    roop.globals.ffps = args.ffps 
 
 def encode_execution_providers(execution_providers: List[str]) -> List[str]:
     return [execution_provider.replace('ExecutionProvider', '').lower() for execution_provider in execution_providers]
@@ -154,13 +154,14 @@ def start() -> None:
         destroy()
     update_status('Creating temporary resources...')
     create_temp(roop.globals.target_path)
+
     # extract frames
     if roop.globals.keep_fps:
         fps = detect_fps(roop.globals.target_path)
         update_status(f'Extracting frames with {fps} FPS...')
         extract_frames(roop.globals.target_path, fps)
     else:
-        default_fps = args.default_fps
+        default_fps = roop.globals.ffps  # 将 ffps 的值赋给 default_fps
         update_status(f'Extracting frames with {default_fps} FPS...')
         extract_frames(roop.globals.target_path, default_fps)
 
